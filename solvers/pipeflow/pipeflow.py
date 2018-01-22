@@ -23,7 +23,7 @@ class PipeFlow:
 
         self.m = parameters['m']  # Number of segments
         self.dz = l / self.m
-        self.z = np.arange(self.dz / 2.0, self.dz, l)  # Data is stored in cell centers
+        self.z = np.arange(self.dz / 2.0, l, self.dz)  # Data is stored in cell centers
 
         self.n = 0  # Time step
         self.dt = 0  # Time step size

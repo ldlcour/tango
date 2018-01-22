@@ -1,4 +1,5 @@
 from solvers.pipeflow.pipeflow import PipeFlow
+from matplotlib.pyplot import plot
 import numpy as np
 import math as m
 
@@ -31,3 +32,5 @@ pipeflow.initializestep()
 p = pipeflow.calculate(a)
 pipeflow.finalizestep()
 pipeflow.finalize()
+
+plot(pipeflow.z, p)
