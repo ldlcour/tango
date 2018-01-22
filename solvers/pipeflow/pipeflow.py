@@ -93,35 +93,35 @@ class PipeFlow:
         return u
 
     def getresidual(self):
-        usign = self.u[1:self.m] > 0
-        ur = self.u[1:self.m] * usign + self.u[2:self.m + 1] * (1 - usign)
-        ul = self.u[0:self.m - 1] * usign + self.u[1:self.m] * (1 - usign)
+        usign = self.u[1:self.m + 1] > 0
+        ur = self.u[1:self.m + 1] * usign + self.u[2:self.m + 2] * (1 - usign)
+        ul = self.u[0:self.m] * usign + self.u[1:self.m + 1] * (1 - usign)
         self.alpha = m.pi * self.d ** 2 / 4.0 / (self.ureference + self.dz / self.dt)
 
         f = np.zeros(2 * self.m + 4)
         f[0] = 0.0
         f[1] = self.p[0] - (2.0 * self.p[1] - self.p[2])
-        f[2:2 * self.m:2] = self.dz / self.dt * (self.a[1:self.m] - self.an[1:self.m]) \
-                            + (self.u[1:self.m] + self.u[2:self.m + 1]) \
-                              * (self.a[1:self.m] + self.a[2:self.m + 1]) / 4.0 \
-                            - (self.u[1:self.m] + self.u[0:self.m - 1]) \
-                              * (self.a[1:self.m] + self.a[0:self.m - 1]) / 4.0 \
-                            - self.alpha * (self.p[2:self.m + 1] - 2.0 * self.p[1:self.m] + self.p[0:self.m - 1])
-        f[3:2 * self.m + 1:2] = self.dz / self.dt * (self.u[1:self.m] * self.a[1:self.m]
-                                                     - self.un[1:self.m] * self.an[1:self.m]) \
-                                + ur * (self.u[1:self.m] + self.u[2:self.m + 1]) \
-                                  * (self.a[1:self.m] + self.a[2:self.m + 1]) / 4.0 \
-                                - ul * (self.u[1:self.m] + self.u[0:self.m - 1]) \
-                                  * (self.a[1:self.m] + self.a[0:self.m - 1]) / 4.0 \
-                                + ((self.p[2:self.m + 1] - self.p[1:self.m])
-                                   * (self.a[1:self.m] + self.a[2:self.m + 1])
-                                   + (self.p[1:self.m] - self.p[0:self.m - 1])
-                                   * (self.a[1:self.m] + self.a[0:self.m - 1])) / 4.0
+        f[2:2 * self.m + 2:2] = self.dz / self.dt * (self.a[1:self.m + 1] - self.an[1:self.m + 1]) \
+                                + (self.u[1:self.m + 1] + self.u[2:self.m + 2]) \
+                                  * (self.a[1:self.m + 1] + self.a[2:self.m + 2]) / 4.0 \
+                                - (self.u[1:self.m + 1] + self.u[0:self.m]) \
+                                  * (self.a[1:self.m + 1] + self.a[0:self.m]) / 4.0 \
+                                - self.alpha * (self.p[2:self.m + 2] - 2.0 * self.p[1:self.m + 1] + self.p[0:self.m])
+        f[3:2 * self.m + 3:2] = self.dz / self.dt * (self.u[1:self.m + 1] * self.a[1:self.m + 1]
+                                                     - self.un[1:self.m + 1] * self.an[1:self.m + 1]) \
+                                + ur * (self.u[1:self.m + 1] + self.u[2:self.m + 2]) \
+                                  * (self.a[1:self.m + 1] + self.a[2:self.m + 2]) / 4.0 \
+                                - ul * (self.u[1:self.m + 1] + self.u[0:self.m]) \
+                                  * (self.a[1:self.m + 1] + self.a[0:self.m]) / 4.0 \
+                                + ((self.p[2:self.m + 2] - self.p[1:self.m + 1])
+                                   * (self.a[1:self.m + 1] + self.a[2:self.m + 2])
+                                   + (self.p[1:self.m + 1] - self.p[0:self.m])
+                                   * (self.a[1:self.m + 1] + self.a[0:self.m])) / 4.0
         f[2 * self.m + 2] = self.u[self.m + 1] - (2.0 * self.u[self.m] - self.u[self.m - 1])
         f[2 * self.m + 3] = self.p[self.m + 1] - (2.0 * (self.cmk2 - (m.sqrt(self.cmk2
                                                                              - self.pn[self.m + 1] / 2.0) - (
-                                                                      self.u[self.m + 1] - self.un[
-                                                                          self.m + 1]) / 4.0) ** 2))
+                                                                          self.u[self.m + 1] - self.un[
+                                                                              self.m + 1]) / 4.0) ** 2))
         return f
 
     def getjacobian(self):
@@ -131,29 +131,33 @@ class PipeFlow:
         A[PipeFlow.Au + 1 - 3, 3] = -2.0  # [1,3]
         A[PipeFlow.Au + 1 - 5, 5] = 1.0  # [1,5]
 
-        # for (unsigned int i = 1; i <= N; i++) {
-        #     jacobianSparse(2*i, 2*(i-1)) = -(A[i]+A[i-1])/4.0
-        #     jacobianSparse(2*i+1, 2*(i-1)) = -(U[i] > 0 ? U[i]+2.0*U[i-1] : U[i])*(A[i]+A[i-1])/4.0
-        #     jacobianSparse(2*i, 2*(i-1)+1) = -beta
-        #     jacobianSparse(2*i+1, 2*(i-1)+1) = -(A[i]+A[i-1])/4.0
-        #     jacobianSparse(2*i, 2*i) = (A[i]+A[i+1])/4.0-(A[i]+A[i-1])/4.0
-        #     jacobianSparse(2*i+1, 2*i) = D0*A[i]+(U[i] > 0 ? 2.0*U[i]+U[i+1] : U[i+1])*(A[i]+A[i+1])/4.0-(U[i] > 0 ? U[i-1] : 2.0*U[i]+U[i-1])*(A[i]+A[i-1])/4.0
-        #     jacobianSparse(2*i, 2*i+1) = 2.0*beta
-        #     jacobianSparse(2*i+1, 2*i+1) = (-(A[i]+A[i+1])+(A[i]+A[i-1]))/4.0
-        #     jacobianSparse(2*i, 2*(i+1)) = (A[i]+A[i+1])/4.0
-        #     jacobianSparse(2*i+1, 2*(i+1)) = (U[i] > 0 ? U[i] : U[i]+2.0*U[i+1])*(A[i]+A[i+1])/4.0
-        #     jacobianSparse(2*i, 2*(i+1)+1) = -beta
-        #     jacobianSparse(2*i+1, 2*(i+1)+1) = (A[i]+A[i+1])/4.0;
-        # }
+        A[PipeFlow.Au + 2, 0:2 * self.m + 0:2] = -(self.a[1:self.m+1]+self.a[0:self.m])/4.0  # [2*i, 2*(i-1)]
+        A[PipeFlow.Au + 3, 0:2 * self.m + 0:2] = -(U[i] > 0 ? U[i]+2.0*U[i-1] : U[i]) \
+                *(self.a[1:self.m+1]+self.a[0:self.m])/4.0  # [2*i+1, 2*(i-1)] TODO
+        A[PipeFlow.Au + 1, 1:2 * self.m + 1:2] = -self.alpha  # [2*i, 2*(i-1)+1]
+        A[PipeFlow.Au + 2, 1:2 * self.m + 1:2] = -(self.a[1:self.m+1]+self.a[0:self.m])/4.0  #[2*i+1, 2*(i-1)+1]
 
+        A[PipeFlow.Au + 0, 2:2 * self.m + 2:2] = (self.a[1:self.m+1]+self.a[2:self.m+2])/4.0 \
+                                                 -(self.a[1:self.m+1]+self.a[0:self.m])/4.0  # [2*i, 2*i]
+        A[PipeFlow.Au + 1, 2:2 * self.m + 2:2] = D0*A[i] \
+                                                 +(U[i] > 0 ? 2.0*U[i]+U[i+1] : U[i+1]) \
+                *(A[i]+A[i+1])/4.0-(U[i] > 0 ? U[i-1] : 2.0*U[i]+U[i-1])*(A[i]+A[i-1])/4.0  # [2*i+1, 2*i] TODO
+        A[PipeFlow.Au - 1, 3:2 * self.m + 3:2] = 2.0*self.alpha  # [2*i, 2*i+1]
+        A[PipeFlow.Au + 0, 3:2 * self.m + 3:2] = (-(self.a[1:self.m+1]+self.a[2:self.m+2])+(self.a[1:self.m+1]+self.a[0:self.m]))/4.0  # [2*i+1, 2*i+1]
 
-        A[PipeFlow.Au + (2 * self.m + 2) - (2 * self.m + 2), 2 * self.m + 2] = 1.0  # 2*m+2, 2*m+2
-        A[PipeFlow.Au + (2 * self.m + 2) - (2 * self.m), 2 * self.m] = -2.0  # 2*m+2, 2*m
-        A[PipeFlow.Au + (2 * self.m + 2) - (2 * self.m - 2), 2 * self.m - 2] = 1.0  # 2*m+2, 2*m-2
+        A[PipeFlow.Au - 2, 4:2 * self.m + 4:2] = (self.a[1:self.m+1]+self.a[2:self.m+2])/4.0  # [2*i, 2*(i+1)]
+        A[PipeFlow.Au - 1, 4:2 * self.m + 4:2] = (U[i] > 0 ? U[i] : U[i]+2.0*U[i+1]) \
+            *(self.a[1:self.m+1]+self.a[1:self.m+2])/4.0  # [2*i+1, 2*(i+1)] TODO
+        A[PipeFlow.Au - 3, 5:2 * self.m + 5:2] = -self.alpha  # [2*i, 2*(i+1)+1]
+        A[PipeFlow.Au - 2, 5:2 * self.m + 5:2] = (self.a[1:self.m+1]+self.a[2:self.m+2])/4.0  # [2*i+1, 2*(i+1)+1]
+
+        A[PipeFlow.Au + (2 * self.m + 2) - (2 * self.m + 2), 2 * self.m + 2] = 1.0  # [2*m+2, 2*m+2]
+        A[PipeFlow.Au + (2 * self.m + 2) - (2 * self.m), 2 * self.m] = -2.0  # [2*m+2, 2*m]
+        A[PipeFlow.Au + (2 * self.m + 2) - (2 * self.m - 2), 2 * self.m - 2] = 1.0  # [2*m+2, 2*m-2]
         A[PipeFlow.Au + (2 * self.m + 3) - (2 * self.m + 2), 2 * self.m + 2] = \
             -(m.sqrt(self.cmk2 - self.pn[self.m + 1]) / 2.0
-              - (self.u[self.m + 1] - self.un[self.n + 1]) / 4.0)  # 2*m+3, 2*m+2
-        A[PipeFlow.Au + (2 * self.m + 3) - (2 * self.m + 3), 2 * self.m + 3] = 1.0  # 2*m+3, 2*m+3
+              - (self.u[self.m + 1] - self.un[self.n + 1]) / 4.0)  # [2*m+3, 2*m+2]
+        A[PipeFlow.Au + (2 * self.m + 3) - (2 * self.m + 3), 2 * self.m + 3] = 1.0  # [2*m+3, 2*m+3]
 
         return A
 
@@ -183,7 +187,7 @@ class PipeFlow:
             Exception('Newton failed to converge')
 
         # Output does not contain boundary conditions
-        p = self.p[1:self.m]
+        p = self.p[1:self.m + 1]
         return p
 
     def finalizestep(self):
