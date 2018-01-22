@@ -125,6 +125,7 @@ class PipeFlow:
         return f
 
     def getjacobian(self):
+        usign = self.u[1:self.m + 1] > 0
         A = np.zeros((PipeFlow.Al + PipeFlow.Au + 1, 2 * self.m + 4))
         A[PipeFlow.Au + 0 - 0, 0] = 1.0  # [0,0]
         A[PipeFlow.Au + 1 - 1, 1] = 1.0  # [1,1]
@@ -132,22 +133,28 @@ class PipeFlow:
         A[PipeFlow.Au + 1 - 5, 5] = 1.0  # [1,5]
 
         A[PipeFlow.Au + 2, 0:2 * self.m + 0:2] = -(self.a[1:self.m+1]+self.a[0:self.m])/4.0  # [2*i, 2*(i-1)]
-        A[PipeFlow.Au + 3, 0:2 * self.m + 0:2] = -(U[i] > 0 ? U[i]+2.0*U[i-1] : U[i]) \
-                *(self.a[1:self.m+1]+self.a[0:self.m])/4.0  # [2*i+1, 2*(i-1)] TODO
+        A[PipeFlow.Au + 3, 0:2 * self.m + 0:2] = -((self.u[1:self.m+1]+2.0*self.u[0:self.m])*usign \
+                                                   +self.u[1:self.m+1]*(1-usign)) \
+                                                   *(self.a[1:self.m+1]+self.a[0:self.m])/4.0  # [2*i+1, 2*(i-1)]
         A[PipeFlow.Au + 1, 1:2 * self.m + 1:2] = -self.alpha  # [2*i, 2*(i-1)+1]
         A[PipeFlow.Au + 2, 1:2 * self.m + 1:2] = -(self.a[1:self.m+1]+self.a[0:self.m])/4.0  #[2*i+1, 2*(i-1)+1]
 
         A[PipeFlow.Au + 0, 2:2 * self.m + 2:2] = (self.a[1:self.m+1]+self.a[2:self.m+2])/4.0 \
                                                  -(self.a[1:self.m+1]+self.a[0:self.m])/4.0  # [2*i, 2*i]
-        A[PipeFlow.Au + 1, 2:2 * self.m + 2:2] = D0*A[i] \
-                                                 +(U[i] > 0 ? 2.0*U[i]+U[i+1] : U[i+1]) \
-                *(A[i]+A[i+1])/4.0-(U[i] > 0 ? U[i-1] : 2.0*U[i]+U[i-1])*(A[i]+A[i-1])/4.0  # [2*i+1, 2*i] TODO
+        A[PipeFlow.Au + 1, 2:2 * self.m + 2:2] = self.dz/self.dt*self.a[1:self.m+1] \
+                                                   +((2.0*self.u[1:self.m+1]+self.u[2:self.m+2])*usign \
+                                                   +self.u[2:self.m+2]*(1-usign)) \
+                                                   *(self.a[1:self.m+1]+self.a[2:self.m+2])/4.0 \
+                                                   -(self.u[0:self.m]*usign \
+                                                     +(2.0*self.u[1:self.m+1]+self.u[0:self.m])*(1-usign))\
+                                                   *(self.a[1:self.m+1]+self.a[0:self.m])/4.0  # [2*i+1, 2*i]
         A[PipeFlow.Au - 1, 3:2 * self.m + 3:2] = 2.0*self.alpha  # [2*i, 2*i+1]
-        A[PipeFlow.Au + 0, 3:2 * self.m + 3:2] = (-(self.a[1:self.m+1]+self.a[2:self.m+2])+(self.a[1:self.m+1]+self.a[0:self.m]))/4.0  # [2*i+1, 2*i+1]
+        A[PipeFlow.Au + 0, 3:2 * self.m + 3:2] = (-(self.a[1:self.m+1]+self.a[2:self.m+2])
+                                                  +(self.a[1:self.m+1]+self.a[0:self.m]))/4.0  # [2*i+1, 2*i+1]
 
         A[PipeFlow.Au - 2, 4:2 * self.m + 4:2] = (self.a[1:self.m+1]+self.a[2:self.m+2])/4.0  # [2*i, 2*(i+1)]
-        A[PipeFlow.Au - 1, 4:2 * self.m + 4:2] = (U[i] > 0 ? U[i] : U[i]+2.0*U[i+1]) \
-            *(self.a[1:self.m+1]+self.a[1:self.m+2])/4.0  # [2*i+1, 2*(i+1)] TODO
+        A[PipeFlow.Au - 1, 4:2 * self.m + 4:2] = (self.u[1:self.m+1]*usign+(self.u[1:self.m+1]+2.0*self.u[2:self.m+2])*(1-usign)) \
+            *(self.a[1:self.m+1]+self.a[1:self.m+2])/4.0  # [2*i+1, 2*(i+1)]
         A[PipeFlow.Au - 3, 5:2 * self.m + 5:2] = -self.alpha  # [2*i, 2*(i+1)+1]
         A[PipeFlow.Au - 2, 5:2 * self.m + 5:2] = (self.a[1:self.m+1]+self.a[2:self.m+2])/4.0  # [2*i+1, 2*(i+1)+1]
 
