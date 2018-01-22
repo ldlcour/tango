@@ -15,6 +15,10 @@ class PipeFlow:
         self.uperiod = parameters['uperiod']  # Period of inlet boundary condition
         self.utype = parameters['utype']  # Type of inlet boundary condition
 
+        e = parameters['e']  # Young's modulus of structure
+        h = parameters['h']  # Thickness of structure
+        self.cmk2 = (e*h)/(self.rho*d)  # Wave speed squared of outlet boundary condition
+
         self.m = parameters['m']  # Number of segments
         self.dz = l / self.m
         self.z = np.arange(self.dz / 2.0, self.dz, l)  # Data is stored in cell centers
@@ -24,12 +28,13 @@ class PipeFlow:
 
         self.newtonmax = parameters['newtonmax']  # Maximal number of Newton iterations
         self.newtontol = parameters['newtontol']  # Tolerance of Newton iterations
-
+        self.alpha = np.pi*d**2/4.0/(self.ureference+self.dz/self.dt)
 
         # Initialization
-        self.u = np.zeros(self.m+2)  # Velocity
-        self.un = np.zeros(self.m+2)  # Previous velocity
+        self.u = np.ones(self.m+2)*self.ureference  # Velocity
+        self.un = np.zeros(self.m+2)*self.ureference  # Previous velocity
         self.p = np.zeros(self.m+2)  # Pressure
+        self.pn = np.zeros(self.m + 2)  # Previous pressure
         self.a = np.ones(self.m+2)*np.pi*d**2/4.0  # Area of cross section
         self.an = np.ones(self.m+2)*np.pi*d**2/4.0  # Previous area of cross section
 
@@ -75,27 +80,45 @@ class PipeFlow:
         else:
             Exception('Not initialized')
 
-    def setboundary(self):
+    def getboundary(self):
         if self.utype == 1:
-            self.u[0] = self.ureference+self.uamplitude*m.sin(2.0*m.pi*self.n/self.uperiod)
+            u = self.ureference+self.uamplitude*m.sin(2.0*m.pi*self.n/self.uperiod)
         elif self.utype == 2:
-            self.u[0] = self.ureference+self.uamplitude
+            u = self.ureference+self.uamplitude
         elif self.utype == 3:
-            self.u[0] = self.ureference+self.uamplitude*(m.sin(m.pi*self.n/self.uperiod))**2
+            u = self.ureference+self.uamplitude*(m.sin(m.pi*self.n/self.uperiod))**2
         else:
-            self.u[0] = self.ureference+self.uamplitude*self.n/self.uperiod
+            u = self.ureference+self.uamplitude*self.n/self.uperiod
+        return u
 
     def getresidual(self):
-        return 0
+        usign = self.u[1:self.m] > 0
+        ur = self.u[1:self.m]*usign+self.u[2:self.m+1]*(1-usign)
+        ul = self.u[0:self.m-1]*usign+self.u[1:self.m]*(1-usign)
+        f = np.zeros(2*self.m+4)
+        f[0] = 0.0
+        f[1] = self.p[0]-(2.0*self.p[1]-self.p[2])
+        f[2:2:2*self.m] = self.dz/self.dt*(self.a[1:self.m]-self.an[1:self.m]) \
+                          +(self.u[1:self.m]+self.u[2:self.m+1])*(self.a[1:self.m]+self.a[2:self.m+1])/4.0 \
+                          -(self.u[1:self.m]+self.u[0:self.m-1])*(self.a[1:self.m]+self.a[0:self.m-1])/4.0 \
+                          -self.alpha*(self.p[2:self.m+1]-2.0*self.p[1:self.m]+self.p[0:self.m-1])
+        f[3:2:2*self.m+1] = self.dz/self.dt*(self.u[i]*self.a[i]-self.un[i]*self.an[i]) \
+                            +ur*(self.u[1:self.m]+self.u[2:self.m+1])*(self.a[1:self.m]+self.a[2:self.m+1])/4.0 \
+                            -ul*(self.u[1:self.m]+self.u[0:self.m-1])*(self.a[1:self.m]+self.a[0:self.m-1])/4.0 \
+                            +((self.p[2:self.m+1]-self.p[1:self.m])*(self.a[1:self.m]+self.a[2:self.m+1]) \
+                              +(self.p[1:self.m]-self.p[0:self.m-1])*(self.a[1:self.m]+self.a[0:self.m-1]))/4.0
+        f[2*self.m+2] = self.u[self.m+1]-(2.0*self.u[self.m]-self.u[self.m-1])
+        f[2*self.m+3] = self.p[self.m+1]-(2.0*(self.cmk2-(m.sqrt(self.cmk2-self.pn[self.m+1]/2.0)-(self.u[self.m+1]-self.un[self.m+1])/4.0)**2))
+        return f
 
     def getjacobian(self):
         return 0
 
     def calculate(self, a):
         # Input does not contain boundary conditions
-        self.a[1:-2] = a
+        self.a[1:self.m] = a
         self.a[0] = self.a[1]
-        self.a[-1] = self.a[-2]
+        self.a[self.m+1] = self.a[self.m]
 
         # Newton iterations
         converged = False
@@ -107,7 +130,7 @@ class PipeFlow:
             x = solve_banded(landu, A, b)
             self.u += x[0:2:-1]
             self.p += x[1:2:-1]
-            self.setboundary()
+            self.u[0] = self.getboundary()
             f = self.getresidual()
             residual = np.linalg.norm(f)
             if residual/residual0 < self.newtontol:
@@ -115,7 +138,9 @@ class PipeFlow:
                 break
         if not(converged):
             Exception('Newton failed to converge')
-        p = self.p[1:-2]
+
+        # Output does not contain boundary conditions
+        p = self.p[1:self.m]
         return p
 
     def finalizestep(self):
