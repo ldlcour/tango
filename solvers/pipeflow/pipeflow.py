@@ -99,7 +99,7 @@ class PipeFlow:
         self.alpha = m.pi * self.d ** 2 / 4.0 / (self.ureference + self.dz / self.dt)
 
         f = np.zeros(2 * self.m + 4)
-        f[0] = 0.0
+        f[0] = self.u[0]-self.getboundary()
         f[1] = self.p[0] - (2.0 * self.p[1] - self.p[2])
         f[2:2 * self.m + 2:2] = self.dz / self.dt * (self.a[1:self.m + 1] - self.an[1:self.m + 1]) \
                                 + (self.u[1:self.m + 1] + self.u[2:self.m + 2]) \
@@ -154,7 +154,7 @@ class PipeFlow:
 
         A[PipeFlow.Au - 2, 4:2 * self.m + 4:2] = (self.a[1:self.m+1]+self.a[2:self.m+2])/4.0  # [2*i, 2*(i+1)]
         A[PipeFlow.Au - 1, 4:2 * self.m + 4:2] = (self.u[1:self.m+1]*usign+(self.u[1:self.m+1]+2.0*self.u[2:self.m+2])*(1-usign)) \
-            *(self.a[1:self.m+1]+self.a[1:self.m+2])/4.0  # [2*i+1, 2*(i+1)]
+            *(self.a[1:self.m+1]+self.a[2:self.m+2])/4.0  # [2*i+1, 2*(i+1)]
         A[PipeFlow.Au - 3, 5:2 * self.m + 5:2] = -self.alpha  # [2*i, 2*(i+1)+1]
         A[PipeFlow.Au - 2, 5:2 * self.m + 5:2] = (self.a[1:self.m+1]+self.a[2:self.m+2])/4.0  # [2*i+1, 2*(i+1)+1]
 
@@ -182,8 +182,8 @@ class PipeFlow:
             A = self.getjacobian()
             b = -f
             x = solve_banded((PipeFlow.Al, PipeFlow.Au), A, b)
-            self.u += x[0:-2:2]
-            self.p += x[1:-1:2]
+            self.u += x[0::2]
+            self.p += x[1::2]
             self.u[0] = self.getboundary()
             f = self.getresidual()
             residual = np.linalg.norm(f)
