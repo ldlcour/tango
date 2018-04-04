@@ -50,7 +50,7 @@ def test_constantpressure():
     tol = 1e-12  # Test tolerance
     dt = 0.01  # Time step size
     n = 10  # Number of time steps
-    a = m.pi*parameters['d']**2/4.0*np.ones(parameters['m'])  # Undisturbed area of cross section
+    a = m.pi * parameters['d'] ** 2 / 4.0 * np.ones(parameters['m'])  # Undisturbed area of cross section
     cmk2 = (parameters['e'] * parameters['h']) / (parameters['rhof'] * parameters['d'])  # Wave speed squared
 
     pipeflow = PipeFlow(parameters)
@@ -85,8 +85,8 @@ def test_repeatpressure():
     tol = 1e-12  # Test tolerance
     dt = 0.01  # Time step size
     n = 10  # Number of time steps
-    a = m.pi*parameters['d']**2/4.0*np.ones(parameters['m'])  # Undisturbed area of cross section
-    b = 1.1*a  # Disturbed area of cross section
+    a = m.pi*parameters['d'] ** 2 / 4.0 * np.ones(parameters['m'])  # Undisturbed area of cross section
+    b = 1.1 * a  # Disturbed area of cross section
 
     pipeflow = PipeFlow(parameters)
     pipeflow.settimestep(dt)
