@@ -22,12 +22,12 @@ class PipeFlow:
         self.cmk2 = (e * h) / (self.rhof * self.d)  # Wave speed squared of outlet boundary condition
 
         self.m = parameters['m']  # Number of segments
-        self.dz = l / self.m
+        self.dz = l / self.m  # Segment length
         self.z = np.arange(self.dz / 2.0, l, self.dz)  # Data is stored in cell centers
 
         self.n = 0  # Time step
-        self.dt = 0  # Time step size
-        self.alpha = 0  # Numerical damping parameter due to central discretization of pressure in momentum equation
+        self.dt = 0.0  # Time step size
+        self.alpha = 0.0  # Numerical damping parameter due to central discretization of pressure in momentum equation
 
         self.newtonmax = parameters['newtonmax']  # Maximal number of Newton iterations
         self.newtontol = parameters['newtontol']  # Tolerance of Newton iterations
@@ -35,8 +35,8 @@ class PipeFlow:
         # Initialization
         self.u = np.ones(self.m + 2) * self.ureference  # Velocity
         self.un = np.ones(self.m + 2) * self.ureference  # Previous velocity
-        self.p = np.ones(self.m + 2) * 2 * self.cmk2  # Pressure
-        self.pn = np.ones(self.m + 2) * 2 * self.cmk2  # Previous pressure (only value at outlet is used)
+        self.p = np.ones(self.m + 2) * 2.0 * self.cmk2  # Pressure
+        self.pn = np.ones(self.m + 2) * 2.0 * self.cmk2  # Previous pressure (only value at outlet is used)
         self.a = np.ones(self.m + 2) * m.pi * self.d ** 2 / 4.0  # Area of cross section
         self.an = np.ones(self.m + 2) * m.pi * self.d ** 2 / 4.0  # Previous area of cross section
 
@@ -80,7 +80,7 @@ class PipeFlow:
                 self.n += 1
                 self.initializedstep = True
                 self.un = np.array(self.u)
-                self.up = np.array(self.p)
+                self.pn = np.array(self.p)
                 self.an = np.array(self.a)
         else:
             Exception('Not initialized')
@@ -98,12 +98,12 @@ class PipeFlow:
 
     def getresidual(self):
         usign = self.u[1:self.m + 1] > 0
-        ur = self.u[1:self.m + 1] * usign + self.u[2:self.m + 2] * (1 - usign)
-        ul = self.u[0:self.m] * usign + self.u[1:self.m + 1] * (1 - usign)
+        ur = self.u[1:self.m + 1] * usign + self.u[2:self.m + 2] * (1.0 - usign)
+        ul = self.u[0:self.m] * usign + self.u[1:self.m + 1] * (1.0 - usign)
         self.alpha = m.pi * self.d ** 2 / 4.0 / (self.ureference + self.dz / self.dt)
 
         f = np.zeros(2 * self.m + 4)
-        f[0] = self.u[0]-self.getboundary()
+        f[0] = self.u[0] - self.getboundary()
         f[1] = self.p[0] - (2.0 * self.p[1] - self.p[2])
         f[2:2 * self.m + 2:2] = (self.dz / self.dt * (self.a[1:self.m + 1] - self.an[1:self.m + 1])
                                  + (self.u[1:self.m + 1] + self.u[2:self.m + 2])
