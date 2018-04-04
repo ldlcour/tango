@@ -17,7 +17,7 @@ def test_getsetgrid():
         'h': 0.001,
         'm': 100,
         'newtonmax': 10,
-        'newtontol': 1e-12
+        'newtontol': 1e-12,
     }  # Test case with constant inlet velocity
 
     pipeflow = PipeFlow(parameters)
@@ -45,13 +45,12 @@ def test_constantpressure():
         'h': 0.001,
         'm': 100,
         'newtonmax': 10,
-        'newtontol': 1e-12
+        'newtontol': 1e-12,
     }  # Test case with constant inlet velocity
     tol = 1e-12  # Test tolerance
     dt = 0.01  # Time step size
     n = 10  # Number of time steps
     a = m.pi * parameters['d'] ** 2 / 4.0 * np.ones(parameters['m'])  # Undisturbed area of cross section
-    cmk2 = (parameters['e'] * parameters['h']) / (parameters['rhof'] * parameters['d'])  # Wave speed squared
 
     pipeflow = PipeFlow(parameters)
     pipeflow.settimestep(dt)
@@ -60,7 +59,7 @@ def test_constantpressure():
         pipeflow.initializestep()
         p = pipeflow.calculate(a)
         assert len(p) == parameters['m']
-        d = abs(p - 2.0 * cmk2)
+        d = abs(p - 0.0)
         assert max(d) < tol
         pipeflow.finalizestep()
     pipeflow.finalize()
@@ -80,7 +79,7 @@ def test_repeatpressure():
         'h': 0.001,
         'm': 100,
         'newtonmax': 10,
-        'newtontol': 1e-12
+        'newtontol': 1e-12,
     }  # Test case with constant inlet velocity
     tol = 1e-12  # Test tolerance
     dt = 0.01  # Time step size
@@ -95,7 +94,7 @@ def test_repeatpressure():
         pipeflow.initializestep()
         pa = pipeflow.calculate(a)
         pb = pipeflow.calculate(b)
-        d = abs(pa-pb)
+        d = abs(pa - pb)
         assert min(d) > tol
         paa = pipeflow.calculate(a)
         d = abs(pa - paa)
@@ -121,7 +120,7 @@ def test_linearpressure():
         'h': 0.001,
         'm': 100,
         'newtonmax': 10,
-        'newtontol': 1e-12
+        'newtontol': 1e-12,
     }  # Test case with increasing inlet velocity
     tol = 1e-12  # Test tolerance
     dt = 0.01  # Time step size

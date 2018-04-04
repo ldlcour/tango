@@ -10,7 +10,7 @@ class PipeStructure:
 
         e = parameters['e']  # Young's modulus of structure
         h = parameters['h']  # Thickness of structure
-        self.cmk2 = (e * h) / (self.rhof * self.d)  # Wave speed squared of outlet boundary condition
+        self.cmk2 = (e * h) / (self.rhof * self.d)  # Wave speed squared
 
         self.m = parameters['m']  # Number of segments
         self.dz = l / self.m  # Segment length
@@ -22,8 +22,9 @@ class PipeStructure:
         # Initialization
         self.p = np.ones(self.m) * 2.0 * self.cmk2  # Pressure
         self.a = np.ones(self.m) * m.pi * self.d ** 2 / 4.0  # Area of cross section
-        self.p0 = 2.0 * self.cmk2  # Reference pressure
+        self.p0 = 0.0  # Reference pressure
         self.a0 = m.pi * self.d ** 2 / 4.0  # Reference area of cross section
+        self.c02 = self.cmk2 - self.p0 / 2.0  # Wave speed squared with reference pressure
 
         self.initialized = False
         self.initializedstep = False
@@ -70,8 +71,11 @@ class PipeStructure:
     def calculate(self, p):
         # Independent rings model
         self.p = p
+        for i in range(len(self.p)):
+            if self.p[i] > 2.0 * self.c02 + self.p0:
+                raise ValueError('Unphysical pressure')
         for i in range(len(self.a)):
-            self.a[i] = self.a0 * ((self.p0 - 2.0 * self.cmk2) / (self.p[i] - 2.0 * self.cmk2)) ** 2
+            self.a[i] = self.a0 * (2.0 / (2.0 + (self.p0 - self.p[i]) / self.c02)) ** 2
         # Return copy of output
         return np.array(self.a)
 

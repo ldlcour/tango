@@ -35,8 +35,8 @@ class PipeFlow:
         # Initialization
         self.u = np.ones(self.m + 2) * self.ureference  # Velocity
         self.un = np.ones(self.m + 2) * self.ureference  # Previous velocity
-        self.p = np.ones(self.m + 2) * 2.0 * self.cmk2  # Pressure
-        self.pn = np.ones(self.m + 2) * 2.0 * self.cmk2  # Previous pressure (only value at outlet is used)
+        self.p = np.zeros(self.m + 2)  # Pressure
+        self.pn = np.zeros(self.m + 2)  # Previous pressure (only value at outlet is used)
         self.a = np.ones(self.m + 2) * m.pi * self.d ** 2 / 4.0  # Area of cross section
         self.an = np.ones(self.m + 2) * m.pi * self.d ** 2 / 4.0  # Previous area of cross section
 
