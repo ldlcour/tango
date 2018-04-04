@@ -34,7 +34,7 @@ class PipeFlow:
 
         # Initialization
         self.u = np.ones(self.m + 2) * self.ureference  # Velocity
-        self.un = self.u  # Previous velocity
+        self.un = np.ones(self.m + 2) * self.ureference  # Previous velocity
         self.p = np.ones(self.m + 2) * 2 * self.cmk2  # Pressure
         self.pn = np.ones(self.m + 2) * 2 * self.cmk2  # Previous pressure (only value at outlet is used)
         self.a = np.ones(self.m + 2) * m.pi * self.d ** 2 / 4.0  # Area of cross section
@@ -79,6 +79,9 @@ class PipeFlow:
             else:
                 self.n += 1
                 self.initializedstep = True
+                self.un = np.array(self.u)
+                self.up = np.array(self.p)
+                self.an = np.array(self.a)
         else:
             Exception('Not initialized')
 
@@ -203,8 +206,6 @@ class PipeFlow:
         # Output does not contain boundary conditions
         p = self.p[1:self.m + 1]
         # Return copy of output
-        print(" ".join(str(i) for i in self.p))
-        print(" ".join(str(i) for i in self.u))
         return np.array(p)
 
     def finalizestep(self):
