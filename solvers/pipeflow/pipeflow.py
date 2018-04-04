@@ -4,8 +4,8 @@ from scipy.linalg import solve_banded
 
 
 class PipeFlow:
-    Al = 4
-    Au = 4
+    Al = 4  # Number of terms below diagonal in matrix
+    Au = 4  # Number of terms above diagonal in matrix
 
     def __init__(self, parameters):
         l = parameters['l']  # Length
@@ -34,8 +34,9 @@ class PipeFlow:
         # Initialization
         self.u = np.ones(self.m + 2) * self.ureference  # Velocity
         self.un = np.zeros(self.m + 2) * self.ureference  # Previous velocity
-        self.p = np.zeros(self.m + 2)  # Pressure
-        self.pn = np.zeros(self.m + 2)  # Previous pressure
+        self.p = np.ones(self.m + 2) * 2 * self.cmk2  # Pressure
+        self.pn = np.ones(self.m + 2) * 2 * self.cmk2  # Previous pressure (only value at outlet is used)
+        print(self.pn[0])
         self.a = np.ones(self.m + 2) * m.pi * self.d ** 2 / 4.0  # Area of cross section
         self.an = np.ones(self.m + 2) * m.pi * self.d ** 2 / 4.0  # Previous area of cross section
 
@@ -118,10 +119,8 @@ class PipeFlow:
                                    + (self.p[1:self.m + 1] - self.p[0:self.m])
                                    * (self.a[1:self.m + 1] + self.a[0:self.m])) / 4.0
         f[2 * self.m + 2] = self.u[self.m + 1] - (2.0 * self.u[self.m] - self.u[self.m - 1])
-        f[2 * self.m + 3] = self.p[self.m + 1] - (2.0 * (self.cmk2 - (m.sqrt(self.cmk2
-                                                                             - self.pn[self.m + 1] / 2.0) - (
-                                                                          self.u[self.m + 1] - self.un[
-                                                                              self.m + 1]) / 4.0) ** 2))
+        f[2 * self.m + 3] = self.p[self.m + 1] - (2.0 * (self.cmk2 - (m.sqrt(self.cmk2 - self.pn[self.m + 1] / 2.0) \
+                                                            - (self.u[self.m + 1] - self.un[self.m + 1]) / 4.0) ** 2))
         return f
 
     def getjacobian(self):
@@ -162,7 +161,7 @@ class PipeFlow:
         A[PipeFlow.Au + (2 * self.m + 2) - (2 * self.m), 2 * self.m] = -2.0  # [2*m+2, 2*m]
         A[PipeFlow.Au + (2 * self.m + 2) - (2 * self.m - 2), 2 * self.m - 2] = 1.0  # [2*m+2, 2*m-2]
         A[PipeFlow.Au + (2 * self.m + 3) - (2 * self.m + 2), 2 * self.m + 2] = \
-            -(m.sqrt(self.cmk2 - self.pn[self.m + 1]) / 2.0
+            -(m.sqrt(self.cmk2 - self.pn[self.m + 1] / 2.0)
               - (self.u[self.m + 1] - self.un[self.n + 1]) / 4.0)  # [2*m+3, 2*m+2]
         A[PipeFlow.Au + (2 * self.m + 3) - (2 * self.m + 3), 2 * self.m + 3] = 1.0  # [2*m+3, 2*m+3]
 
@@ -187,6 +186,7 @@ class PipeFlow:
             self.u[0] = self.getboundary()
             f = self.getresidual()
             residual = np.linalg.norm(f)
+            print(residual)
             if residual / residual0 < self.newtontol:
                 converged = True
                 break

@@ -8,7 +8,7 @@ parameters = {
     'd':  0.005,
     'rhof': 1000.0,
     'ureference': 1.0,
-    'uamplitude': 0.1,
+    'uamplitude': 0.0,
     'uperiod': 1.0,
     'utype': 1,
     'e': 300000.0,
@@ -34,3 +34,4 @@ pipeflow.finalizestep()
 pipeflow.finalize()
 
 plot(pipeflow.z, p)
+print(' '.join(str(n) for n in p))
