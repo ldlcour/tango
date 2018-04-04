@@ -33,10 +33,9 @@ class PipeFlow:
 
         # Initialization
         self.u = np.ones(self.m + 2) * self.ureference  # Velocity
-        self.un = np.zeros(self.m + 2) * self.ureference  # Previous velocity
+        self.un = self.u  # Previous velocity
         self.p = np.ones(self.m + 2) * 2 * self.cmk2  # Pressure
         self.pn = np.ones(self.m + 2) * 2 * self.cmk2  # Previous pressure (only value at outlet is used)
-        print(self.pn[0])
         self.a = np.ones(self.m + 2) * m.pi * self.d ** 2 / 4.0  # Area of cross section
         self.an = np.ones(self.m + 2) * m.pi * self.d ** 2 / 4.0  # Previous area of cross section
 
@@ -114,9 +113,9 @@ class PipeFlow:
                                   * (self.a[1:self.m + 1] + self.a[2:self.m + 2]) / 4.0 \
                                 - ul * (self.u[1:self.m + 1] + self.u[0:self.m]) \
                                   * (self.a[1:self.m + 1] + self.a[0:self.m]) / 4.0 \
-                                + ((self.p[2:self.m + 2] - self.p[1:self.m + 1])
-                                   * (self.a[1:self.m + 1] + self.a[2:self.m + 2])
-                                   + (self.p[1:self.m + 1] - self.p[0:self.m])
+                                + ((self.p[2:self.m + 2] - self.p[1:self.m + 1]) \
+                                   * (self.a[1:self.m + 1] + self.a[2:self.m + 2]) \
+                                   + (self.p[1:self.m + 1] - self.p[0:self.m]) \
                                    * (self.a[1:self.m + 1] + self.a[0:self.m])) / 4.0
         f[2 * self.m + 2] = self.u[self.m + 1] - (2.0 * self.u[self.m] - self.u[self.m - 1])
         f[2 * self.m + 3] = self.p[self.m + 1] - (2.0 * (self.cmk2 - (m.sqrt(self.cmk2 - self.pn[self.m + 1] / 2.0) \
@@ -177,21 +176,21 @@ class PipeFlow:
         converged = False
         f = self.getresidual()
         residual0 = np.linalg.norm(f)
-        for s in range(self.newtonmax):
-            A = self.getjacobian()
-            b = -f
-            x = solve_banded((PipeFlow.Al, PipeFlow.Au), A, b)
-            self.u += x[0::2]
-            self.p += x[1::2]
-            self.u[0] = self.getboundary()
-            f = self.getresidual()
-            residual = np.linalg.norm(f)
-            print(residual)
-            if residual / residual0 < self.newtontol:
-                converged = True
-                break
-        if not (converged):
-            Exception('Newton failed to converge')
+        if residual0:
+            for s in range(self.newtonmax):
+                A = self.getjacobian()
+                b = -f
+                x = solve_banded((PipeFlow.Al, PipeFlow.Au), A, b)
+                self.u += x[0::2]
+                self.p += x[1::2]
+                self.u[0] = self.getboundary()
+                f = self.getresidual()
+                residual = np.linalg.norm(f)
+                if residual / residual0 < self.newtontol:
+                    converged = True
+                    break
+            if not (converged):
+                Exception('Newton failed to converge')
 
         # Output does not contain boundary conditions
         p = self.p[1:self.m + 1]
