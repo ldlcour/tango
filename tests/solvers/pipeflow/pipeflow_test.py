@@ -17,7 +17,7 @@ def test_getsetgrid():
         'h': 0.001,
         'm': 100,
         'newtonmax': 10,
-        'newtontol': 1e-12,
+        'newtontol': 1e-12
     }  # Test case with constant inlet velocity
 
     pipeflow = PipeFlow(parameters)
@@ -45,7 +45,7 @@ def test_constantpressure():
         'h': 0.001,
         'm': 100,
         'newtonmax': 10,
-        'newtontol': 1e-12,
+        'newtontol': 1e-12
     }  # Test case with constant inlet velocity
     tol = 1e-12  # Test tolerance
     dt = 0.01  # Time step size
@@ -79,7 +79,7 @@ def test_repeatpressure():
         'h': 0.001,
         'm': 100,
         'newtonmax': 10,
-        'newtontol': 1e-12,
+        'newtontol': 1e-12
     }  # Test case with constant inlet velocity
     tol = 1e-12  # Test tolerance
     dt = 0.01  # Time step size
@@ -120,7 +120,7 @@ def test_linearpressure():
         'h': 0.001,
         'm': 100,
         'newtonmax': 10,
-        'newtontol': 1e-12,
+        'newtontol': 1e-12
     }  # Test case with increasing inlet velocity
     tol = 1e-12  # Test tolerance
     dt = 0.01  # Time step size

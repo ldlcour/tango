@@ -1,0 +1,6 @@
+{
+    "flowsolvermodule": "solvers.pipeflow.pipeflow",
+    "flowsolverclass": "PipeFlow",
+    "structuresolvermodule": "solvers.pipestructure.pipestructure",
+    "structuresolverclass": "PipeStructure"
+}

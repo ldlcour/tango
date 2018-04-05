@@ -11,7 +11,7 @@ def test_getsetgrid():
         'rhof': 1000.0,
         'e': 300000.0,
         'h': 0.001,
-        'm': 100,
+        'm': 100
     }  # Test case
 
     pipestructure = PipeStructure(parameters)
@@ -33,7 +33,7 @@ def test_constantarea():
         'rhof': 1000.0,
         'e': 300000.0,
         'h': 0.001,
-        'm': 100,
+        'm': 100
     }  # Test case
     tol = 1e-12  # Test tolerance
     dt = 0.01  # Time step size
@@ -62,7 +62,7 @@ def test_repeatarea():
         'rhof': 1000.0,
         'e': 300000.0,
         'h': 0.001,
-        'm': 100,
+        'm': 100
     }  # Test case
     tol = 1e-12  # Test tolerance
     dt = 0.01  # Time step size
