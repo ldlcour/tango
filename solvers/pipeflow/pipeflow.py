@@ -85,6 +85,52 @@ class PipeFlow:
         else:
             Exception('Not initialized')
 
+    def calculate(self, a):
+        # Input does not contain boundary conditions
+        self.a[1:self.m + 1] = a
+        self.a[0] = self.a[1]
+        self.a[self.m + 1] = self.a[self.m]
+
+        # Newton iterations
+        converged = False
+        f = self.getresidual()
+        residual0 = np.linalg.norm(f)
+        if residual0:
+            for s in range(self.newtonmax):
+                j = self.getjacobian()
+                b = -f
+                x = solve_banded((PipeFlow.Al, PipeFlow.Au), j, b)
+                self.u += x[0::2]
+                self.p += x[1::2]
+                self.u[0] = self.getboundary()
+                f = self.getresidual()
+                residual = np.linalg.norm(f)
+                if residual / residual0 < self.newtontol:
+                    converged = True
+                    break
+            if not converged:
+                Exception('Newton failed to converge')
+
+        # Output does not contain boundary conditions
+        p = self.p[1:self.m + 1]
+        # Return copy of output
+        return np.array(p)
+
+    def finalizestep(self):
+        if self.initialized:
+            if self.initializedstep:
+                self.initializedstep = False
+            else:
+                Exception('No step ongoing')
+        else:
+            Exception('Not initialized')
+
+    def finalize(self):
+        if self.initialized:
+            self.initialized = False
+        else:
+            Exception('Not initialized')
+
     def getboundary(self):
         if self.utype == 1:
             u = self.ureference + self.uamplitude * m.sin(2.0 * m.pi * (self.n * self.dt) / self.uperiod)
@@ -135,16 +181,16 @@ class PipeFlow:
         j[PipeFlow.Au + 1 - 3, 3] = -2.0  # [1,3]
         j[PipeFlow.Au + 1 - 5, 5] = 1.0  # [1,5]
 
-        j[PipeFlow.Au + 2, 0:2 * self.m + 0:2] = -(self.a[1:self.m+1] + self.a[0:self.m]) / 4.0  # [2*i, 2*(i-1)]
-        j[PipeFlow.Au + 3, 0:2 * self.m + 0:2] = (-((self.u[1:self.m+1] + 2.0 * self.u[0:self.m]) * usign
-                                                    + self.u[1:self.m+1] * (1.0 - usign))
-                                                  * (self.a[1:self.m+1] + self.a[0:self.m]) / 4.0)  # [2*i+1, 2*(i-1)]
+        j[PipeFlow.Au + 2, 0:2 * self.m + 0:2] = -(self.a[1:self.m + 1] + self.a[0:self.m]) / 4.0  # [2*i, 2*(i-1)]
+        j[PipeFlow.Au + 3, 0:2 * self.m + 0:2] = (-((self.u[1:self.m + 1] + 2.0 * self.u[0:self.m]) * usign
+                                                    + self.u[1:self.m + 1] * (1.0 - usign))
+                                                  * (self.a[1:self.m + 1] + self.a[0:self.m]) / 4.0)  # [2*i+1, 2*(i-1)]
         j[PipeFlow.Au + 1, 1:2 * self.m + 1:2] = -self.alpha  # [2*i, 2*(i-1)+1]
-        j[PipeFlow.Au + 2, 1:2 * self.m + 1:2] = -(self.a[1:self.m+1] + self.a[0:self.m]) / 4.0  # [2*i+1, 2*(i-1)+1]
+        j[PipeFlow.Au + 2, 1:2 * self.m + 1:2] = -(self.a[1:self.m + 1] + self.a[0:self.m]) / 4.0  # [2*i+1, 2*(i-1)+1]
 
-        j[PipeFlow.Au + 0, 2:2 * self.m + 2:2] = ((self.a[1:self.m+1] + self.a[2:self.m+2]) / 4.0
-                                                  - (self.a[1:self.m+1] + self.a[0:self.m]) / 4.0)  # [2*i, 2*i]
-        j[PipeFlow.Au + 1, 2:2 * self.m + 2:2] = (self.dz/self.dt * self.a[1:self.m+1]
+        j[PipeFlow.Au + 0, 2:2 * self.m + 2:2] = ((self.a[1:self.m + 1] + self.a[2:self.m + 2]) / 4.0
+                                                  - (self.a[1:self.m + 1] + self.a[0:self.m]) / 4.0)  # [2*i, 2*i]
+        j[PipeFlow.Au + 1, 2:2 * self.m + 2:2] = (self.dz / self.dt * self.a[1:self.m + 1]
                                                   + ((2.0 * self.u[1:self.m + 1] + self.u[2:self.m + 2]) * usign
                                                      + self.u[2:self.m + 2] * (1.0 - usign))
                                                   * (self.a[1:self.m + 1] + self.a[2:self.m + 2]) / 4.0
@@ -176,49 +222,3 @@ class PipeFlow:
         j[PipeFlow.Au + (2 * self.m + 3) - (2 * self.m + 3), 2 * self.m + 3] = 1.0  # [2*m+3, 2*m+3]
 
         return j
-
-    def calculate(self, a):
-        # Input does not contain boundary conditions
-        self.a[1:self.m + 1] = a
-        self.a[0] = self.a[1]
-        self.a[self.m + 1] = self.a[self.m]
-
-        # Newton iterations
-        converged = False
-        f = self.getresidual()
-        residual0 = np.linalg.norm(f)
-        if residual0:
-            for s in range(self.newtonmax):
-                j = self.getjacobian()
-                b = -f
-                x = solve_banded((PipeFlow.Al, PipeFlow.Au), j, b)
-                self.u += x[0::2]
-                self.p += x[1::2]
-                self.u[0] = self.getboundary()
-                f = self.getresidual()
-                residual = np.linalg.norm(f)
-                if residual / residual0 < self.newtontol:
-                    converged = True
-                    break
-            if not converged:
-                Exception('Newton failed to converge')
-
-        # Output does not contain boundary conditions
-        p = self.p[1:self.m + 1]
-        # Return copy of output
-        return np.array(p)
-
-    def finalizestep(self):
-        if self.initialized:
-            if self.initializedstep:
-                self.initializedstep = False
-            else:
-                Exception('No step ongoing')
-        else:
-            Exception('Not initialized')
-
-    def finalize(self):
-        if self.initialized:
-            self.initialized = False
-        else:
-            Exception('Not initialized')
