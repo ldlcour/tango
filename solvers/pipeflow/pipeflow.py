@@ -63,6 +63,9 @@ class PipeFlow:
         if np.linalg.norm(self.z - z) / np.linalg.norm(self.z) > np.finfo(float).eps:
             Exception('Mapper not implemented')
 
+    def getinputdata(self):
+        return self.a
+
     def gettimestep(self):
         return self.dt
 
