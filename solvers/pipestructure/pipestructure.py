@@ -1,9 +1,15 @@
 import numpy as np
 import math as m
+import os
+import json
 
 
 class PipeStructure:
     def __init__(self, parameters):
+        if not type(parameters) is dict:
+            with open(os.path.join(parameters, "pipestructure/settings.txt")) as f:
+                parameters = json.load(f)
+
         l = parameters['l']  # Length
         self.d = parameters['d']  # Diameter
         self.rhof = parameters['rhof']  # Density

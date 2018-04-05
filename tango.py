@@ -20,8 +20,12 @@ else:
 with open(os.path.join(path, "settings.txt")) as f:
     settings = json.load(f)
 
-# Create classes
+# Read classes
 flowsolvermodule = importlib.import_module(settings["flowsolvermodule"])
 flowsolverclass = getattr(flowsolvermodule, settings["flowsolverclass"])
 structuresolvermodule = importlib.import_module(settings["structuresolvermodule"])
 structuresolverclass = getattr(structuresolvermodule, settings["structuresolverclass"])
+
+# Create solvers
+flowsolver = flowsolverclass(path)
+structuresolver = structuresolverclass(path)

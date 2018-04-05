@@ -1,5 +1,7 @@
 import numpy as np
 import math as m
+import os
+import json
 from scipy.linalg import solve_banded
 
 
@@ -8,6 +10,10 @@ class PipeFlow:
     Au = 4  # Number of terms above diagonal in matrix
 
     def __init__(self, parameters):
+        if not type(parameters) is dict:
+            with open(os.path.join(parameters, "pipeflow/settings.txt")) as f:
+                parameters = json.load(f)
+
         l = parameters['l']  # Length
         self.d = parameters['d']  # Diameter
         self.rhof = parameters['rhof']  # Density
