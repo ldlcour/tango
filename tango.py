@@ -51,6 +51,8 @@ structuresolver.initialize()
 # Initialize coupling
 x = flowsolver.getinputdata()
 r = np.zeros_like(x)
+extrapolator.initialize(x)
+convergence.initialize(r)
 
 # Time step loop
 for n in range(nstart, nstop):
