@@ -2,6 +2,7 @@ import sys
 import os
 import json
 import importlib
+import numpy as np
 
 # Obtain short case path as first input argument or user input
 if len(sys.argv) > 1:
@@ -49,6 +50,7 @@ structuresolver.initialize()
 
 # Initialize coupling
 x = flowsolver.getinputdata()
+r = np.zeros_like(x)
 
 # Time step loop
 for n in range(nstart, nstop):
