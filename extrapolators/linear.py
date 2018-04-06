@@ -7,6 +7,7 @@ class Linear:
         self.xp = np.array([])
         self.x = np.array([])
         self.xn = np.array([])
+        self.added = False
 
     def initialize(self, x):
         self.xp = np.array(x)
@@ -15,6 +16,7 @@ class Linear:
 
     def add(self, x):
         self.xp = np.array(x)
+        self.added = True
 
     def predict(self):
         self.xp = 2.0 * self.x - self.xn
@@ -26,4 +28,7 @@ class Linear:
         self.x = self.xp
 
     def finalizestep(self):
-        return None
+        if self.added:
+            self.added = False
+        else:
+            raise RuntimeError("No information added during step")
