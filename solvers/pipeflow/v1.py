@@ -64,7 +64,8 @@ class PipeFlow:
             Exception("Mapper not implemented")
 
     def getinputdata(self):
-        return self.a
+        a = self.a[1:self.m + 1]
+        return np.array(a)
 
     def gettimestep(self):
         return self.dt
