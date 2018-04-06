@@ -10,15 +10,15 @@ class PipeStructure:
             with open(os.path.join(parameters, "pipestructure/settings.txt")) as f:
                 parameters = json.load(f)
 
-        l = parameters['l']  # Length
-        self.d = parameters['d']  # Diameter
-        self.rhof = parameters['rhof']  # Density
+        l = parameters["l"]  # Length
+        self.d = parameters["d"]  # Diameter
+        self.rhof = parameters["rhof"]  # Density
 
-        e = parameters['e']  # Young's modulus of structure
-        h = parameters['h']  # Thickness of structure
+        e = parameters["e"]  # Young"s modulus of structure
+        h = parameters["h"]  # Thickness of structure
         self.cmk2 = (e * h) / (self.rhof * self.d)  # Wave speed squared
 
-        self.m = parameters['m']  # Number of segments
+        self.m = parameters["m"]  # Number of segments
         self.dz = l / self.m  # Segment length
         self.z = np.arange(self.dz / 2.0, l, self.dz)  # Data is stored in cell centers
 
@@ -40,14 +40,14 @@ class PipeStructure:
 
     def setinputgrid(self, z):
         if np.linalg.norm(self.z - z) / np.linalg.norm(self.z) > np.finfo(float).eps:
-            Exception('Mapper not implemented')
+            Exception("Mapper not implemented")
 
     def getoutputgrid(self):
         return self.z
 
     def setoutputgrid(self, z):
         if np.linalg.norm(self.z - z) / np.linalg.norm(self.z) > np.finfo(float).eps:
-            Exception('Mapper not implemented')
+            Exception("Mapper not implemented")
 
     def getinputdata(self):
         return self.p
@@ -57,32 +57,32 @@ class PipeStructure:
 
     def settimestep(self, dt):
         if self.initializedstep:
-            Exception('Step ongoing')
+            Exception("Step ongoing")
         else:
             self.dt = dt
 
     def initialize(self):
         if self.initialized:
-            Exception('Already initialized')
+            Exception("Already initialized")
         else:
             self.initialized = True
 
     def initializestep(self):
         if self.initialized:
             if self.initializedstep:
-                Exception('Step ongoing')
+                Exception("Step ongoing")
             else:
                 self.n += 1
                 self.initializedstep = True
         else:
-            Exception('Not initialized')
+            Exception("Not initialized")
 
     def calculate(self, p):
         # Independent rings model
         self.p = p
         for i in range(len(self.p)):
             if self.p[i] > 2.0 * self.c02 + self.p0:
-                raise ValueError('Unphysical pressure')
+                raise ValueError("Unphysical pressure")
         for i in range(len(self.a)):
             self.a[i] = self.a0 * (2.0 / (2.0 + (self.p0 - self.p[i]) / self.c02)) ** 2
         # Return copy of output
@@ -93,12 +93,12 @@ class PipeStructure:
             if self.initializedstep:
                 self.initializedstep = False
             else:
-                Exception('No step ongoing')
+                Exception("No step ongoing")
         else:
-            Exception('Not initialized')
+            Exception("Not initialized")
 
     def finalize(self):
         if self.initialized:
             self.initialized = False
         else:
-            Exception('Not initialized')
+            Exception("Not initialized")

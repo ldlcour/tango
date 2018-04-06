@@ -14,20 +14,20 @@ class PipeFlow:
             with open(os.path.join(parameters, "pipeflow/settings.txt")) as f:
                 parameters = json.load(f)
 
-        l = parameters['l']  # Length
-        self.d = parameters['d']  # Diameter
-        self.rhof = parameters['rhof']  # Density
+        l = parameters["l"]  # Length
+        self.d = parameters["d"]  # Diameter
+        self.rhof = parameters["rhof"]  # Density
 
-        self.ureference = parameters['ureference']  # Reference of inlet boundary condition
-        self.uamplitude = parameters['uamplitude']  # Amplitude of inlet boundary condition
-        self.uperiod = parameters['uperiod']  # Period of inlet boundary condition
-        self.utype = parameters['utype']  # Type of inlet boundary condition
+        self.ureference = parameters["ureference"]  # Reference of inlet boundary condition
+        self.uamplitude = parameters["uamplitude"]  # Amplitude of inlet boundary condition
+        self.uperiod = parameters["uperiod"]  # Period of inlet boundary condition
+        self.utype = parameters["utype"]  # Type of inlet boundary condition
 
-        e = parameters['e']  # Young's modulus of structure
-        h = parameters['h']  # Thickness of structure
+        e = parameters["e"]  # Young"s modulus of structure
+        h = parameters["h"]  # Thickness of structure
         self.cmk2 = (e * h) / (self.rhof * self.d)  # Wave speed squared of outlet boundary condition
 
-        self.m = parameters['m']  # Number of segments
+        self.m = parameters["m"]  # Number of segments
         self.dz = l / self.m  # Segment length
         self.z = np.arange(self.dz / 2.0, l, self.dz)  # Data is stored in cell centers
 
@@ -35,8 +35,8 @@ class PipeFlow:
         self.dt = 0.0  # Time step size
         self.alpha = 0.0  # Numerical damping parameter due to central discretization of pressure in momentum equation
 
-        self.newtonmax = parameters['newtonmax']  # Maximal number of Newton iterations
-        self.newtontol = parameters['newtontol']  # Tolerance of Newton iterations
+        self.newtonmax = parameters["newtonmax"]  # Maximal number of Newton iterations
+        self.newtontol = parameters["newtontol"]  # Tolerance of Newton iterations
 
         # Initialization
         self.u = np.ones(self.m + 2) * self.ureference  # Velocity
@@ -54,14 +54,14 @@ class PipeFlow:
 
     def setinputgrid(self, z):
         if np.linalg.norm(self.z - z) / np.linalg.norm(self.z) > np.finfo(float).eps:
-            Exception('Mapper not implemented')
+            Exception("Mapper not implemented")
 
     def getoutputgrid(self):
         return self.z
 
     def setoutputgrid(self, z):
         if np.linalg.norm(self.z - z) / np.linalg.norm(self.z) > np.finfo(float).eps:
-            Exception('Mapper not implemented')
+            Exception("Mapper not implemented")
 
     def getinputdata(self):
         return self.a
@@ -71,20 +71,20 @@ class PipeFlow:
 
     def settimestep(self, dt):
         if self.initializedstep:
-            Exception('Step ongoing')
+            Exception("Step ongoing")
         else:
             self.dt = dt
 
     def initialize(self):
         if self.initialized:
-            Exception('Already initialized')
+            Exception("Already initialized")
         else:
             self.initialized = True
 
     def initializestep(self):
         if self.initialized:
             if self.initializedstep:
-                Exception('Step ongoing')
+                Exception("Step ongoing")
             else:
                 self.n += 1
                 self.initializedstep = True
@@ -92,7 +92,7 @@ class PipeFlow:
                 self.pn = np.array(self.p)
                 self.an = np.array(self.a)
         else:
-            Exception('Not initialized')
+            Exception("Not initialized")
 
     def calculate(self, a):
         # Input does not contain boundary conditions
@@ -118,7 +118,7 @@ class PipeFlow:
                     converged = True
                     break
             if not converged:
-                Exception('Newton failed to converge')
+                Exception("Newton failed to converge")
 
         # Output does not contain boundary conditions
         p = self.p[1:self.m + 1]
@@ -130,15 +130,15 @@ class PipeFlow:
             if self.initializedstep:
                 self.initializedstep = False
             else:
-                Exception('No step ongoing')
+                Exception("No step ongoing")
         else:
-            Exception('Not initialized')
+            Exception("Not initialized")
 
     def finalize(self):
         if self.initialized:
             self.initialized = False
         else:
-            Exception('Not initialized')
+            Exception("Not initialized")
 
     def getboundary(self):
         if self.utype == 1:

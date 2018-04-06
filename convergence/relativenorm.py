@@ -10,6 +10,7 @@ class RelativeNorm:
                 parameters = json.load(f)
         self.kmin = parameters["kmin"]
         self.mintol = parameters["mintol"]
+        self.reltol = parameters["reltol"]
 
         self.k = 0
         self.added = False
@@ -25,7 +26,7 @@ class RelativeNorm:
             self.added = True
 
     def issatisfied(self):
-        return self.r < max(self.r0, self.mintol) and self.k >= self.kmin
+        return self.r < max(self.reltol * self.r0, self.mintol) and self.k >= self.kmin
 
     def initializestep(self):
         self.k = 0
