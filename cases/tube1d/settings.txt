@@ -12,5 +12,7 @@
     "nstart": 1,
     "nstop": 10,
     "kstop": 10,
+    "kmin": 2,
+    "tolmin": 1e-14,
     "dt": 0.01
 }
