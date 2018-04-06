@@ -16,5 +16,6 @@
     "mintol": 1e-14,
     "reltol": 1e-3,
     "minsignificant": 1e-10,
+    "omega": 0.01,
     "dt": 0.01
 }
