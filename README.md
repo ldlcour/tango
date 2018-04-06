@@ -1,7 +1,7 @@
 # tango
 
 # Run all tests
-python -m pytest tests/
+python -m pytest
 
 # Run a case
 python tango.py pathtocase
