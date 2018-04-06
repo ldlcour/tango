@@ -20,23 +20,19 @@ else:
 with open(os.path.join(path, "settings.txt")) as f:
     settings = json.load(f)
 
+
 # Read classes and create instances
-flowsolvermodule = importlib.import_module(settings["flowsolvermodule"])
-flowsolverclass = getattr(flowsolvermodule, settings["flowsolverclass"])
-flowsolver = flowsolverclass(path)
-structuresolvermodule = importlib.import_module(settings["structuresolvermodule"])
-structuresolverclass = getattr(structuresolvermodule, settings["structuresolverclass"])
-structuresolver = structuresolverclass(path)
-couplermodule = importlib.import_module(settings["couplermodule"])
-couplerclass = getattr(couplermodule, settings["couplerclass"])
-coupler = couplerclass(path)
-extrapolatormodule = importlib.import_module(settings["extrapolatormodule"])
-extrapolatorclass = getattr(extrapolatormodule, settings["extrapolatorclass"])
-extrapolator = extrapolatorclass(path)
-convergencemodule = importlib.import_module(settings["convergencemodule"])
-convergenceclass = getattr(convergencemodule, settings["convergenceclass"])
-convergence = convergenceclass(path)
-objects = [flowsolver, structuresolver, coupler, extrapolator, convergence]
+def createinstance(name):
+    objectmodule = importlib.import_module(settings[name+"module"])
+    objectclass = getattr(objectmodule, settings[name+"class"])
+    return objectclass(path)
+
+flowsolver = createinstance("flowsolver")
+structuresolver = createinstance("structuresolver")
+coupler = createinstance("coupler")
+extrapolator = createinstance("extrapolator")
+convergence = createinstance("convergence")
+components = [flowsolver, structuresolver, coupler, extrapolator, convergence]
 
 # Read settings
 nstart = settings["nstart"]
@@ -58,8 +54,9 @@ r = x
 
 # Time step loop
 for n in range(nstart, nstop):
-    for object in objects:
-        object.initializestep()
+    # Initialize step for all components
+    for component in components:
+        component.initializestep()
 
     # Coupling iteration loop
     for k in range(0, kstop):
@@ -77,8 +74,10 @@ for n in range(nstart, nstop):
         if convergence.issatisfied():
             break
 
-    for object in objects:
-        object.finalizestep()
+    # Finalize step for all components
+    for component in components:
+        component.finalizestep()
 
+# Finalize solvers
 flowsolver.finalize()
 structuresolver.finalize()
