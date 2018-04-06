@@ -23,12 +23,14 @@ class IQNILS:
         if self.added:
             dr = r - self.rref
             dxt = xt-self.xtref
+            dr = np.reshape(dr, (-1, 1))
+            dxt = np.reshape(dxt, (-1, 1))
             if self.v.shape[1]:
                 self.v = np.concatenate((dr, self.v), 1)
                 self.w = np.concatenate((dxt, self.w), 1)
             else:
-                self.v = np.matrix(np.reshape(dr, (-1, 1)))
-                self.w = np.matrix(np.reshape(dxt, (-1, 1)))
+                self.v = np.matrix(dr)
+                self.w = np.matrix(dxt)
         self.rref = r
         self.xtref = np.array(xt)
         self.added = True
@@ -36,7 +38,6 @@ class IQNILS:
     def predict(self, r):
         # Remove columns resulting in small diagonal elements in R
         singular = True
-        print(self.v.shape)
         while singular and self.v.shape[1]:
             rr = qr(self.v, mode='r')
             diag = np.diagonal(rr)
@@ -50,16 +51,18 @@ class IQNILS:
         # Calculate return value if sufficient data available
         if self.v.shape[1]:
             # Interface Quasi-Newton with approximation for the inverse of the Jacobian from a least-squares model
-            qq, rr = qr(self.v, mode='reduced')
-            print(rr.shape)
-            c = solve_triangular(rr, np.transpose(qq) * (-r))
-            dx = self.w * c + r
+            qq, rr, *_ = qr(self.v, mode='economic')
+            dr = np.reshape(-r, (-1, 1))
+            b = qq.T @ dr
+            c = solve_triangular(rr, b)
+            dx = self.w @ c - dr
+            dx = np.asarray(dx).reshape(-1)
         else:
             if self.added:
                 dx = self.omega * r
             else:
                 raise RuntimeError("No information to predict")
-        return dx
+        return np.array(dx)
 
     def initializestep(self):
         self.rref = np.array([])
@@ -68,7 +71,6 @@ class IQNILS:
         self.w = np.matrix([])
 
     def finalizestep(self):
-        print(self.added)
         if self.added:
             self.added = False
         else:

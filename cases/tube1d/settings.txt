@@ -10,7 +10,7 @@
     "convergencemodule": "convergence.relativenorm",
     "convergenceclass": "RelativeNorm",
     "nstart": 1,
-    "nstop": 10,
+    "nstop": 3,
     "kstop": 10,
     "kmin": 2,
     "mintol": 1e-14,

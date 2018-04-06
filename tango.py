@@ -8,7 +8,7 @@ import numpy as np
 if len(sys.argv) > 1:
     path = sys.argv[1]
 else:
-    path = input("case path?")
+    path = input("Case path? ")
 
 # Create full case path to case and read settings file
 path = os.path.join(os.getcwd(), path)
@@ -61,6 +61,7 @@ for n in range(nstart, nstop):
 
     # Coupling iteration loop
     for k in range(1, kstop):
+        print(str(n) + " " + str(k))
         if k == 1:
             x = extrapolator.predict()
         else:
@@ -76,9 +77,12 @@ for n in range(nstart, nstop):
             break
 
     # Finalize step for all components
+    extrapolator.add(x)
     for component in components:
         component.finalizestep()
 
 # Finalize solvers
 flowsolver.finalize()
 structuresolver.finalize()
+
+print("Ending case in " + path)
