@@ -3,30 +3,29 @@ import os
 import json
 import importlib
 
-# Obtain case name as first input argument or user input
+# Obtain short case path as first input argument or user input
 if len(sys.argv) > 1:
-    case = sys.argv[1]
+    path = sys.argv[1]
 else:
-    case = input("case?")
+    path = input("case path?")
 
-# Create path to case and ensure it exists
-path = os.path.join(os.getcwd(), case)
+# Create full case path to case and read settings file
+path = os.path.join(os.getcwd(), path)
 if os.path.isdir(path):
-    print("Running case in "+path)
+    print("Running case in " + path)
 else:
-    raise ValueError("No case in "+path)
-
-# Read settings file
+    raise ValueError("No directory in " + path)
 with open(os.path.join(path, "settings.txt")) as f:
     settings = json.load(f)
 
 
-# Read classes and create instances
+# Function to create instance from module and class name
 def createinstance(name):
-    objectmodule = importlib.import_module(settings[name+"module"])
-    objectclass = getattr(objectmodule, settings[name+"class"])
+    objectmodule = importlib.import_module(settings[name + "module"])
+    objectclass = getattr(objectmodule, settings[name + "class"])
     return objectclass(path)
 
+# Create instances
 flowsolver = createinstance("flowsolver")
 structuresolver = createinstance("structuresolver")
 coupler = createinstance("coupler")
@@ -34,13 +33,13 @@ extrapolator = createinstance("extrapolator")
 convergence = createinstance("convergence")
 components = [flowsolver, structuresolver, coupler, extrapolator, convergence]
 
-# Read settings
-nstart = settings["nstart"]
-nstop = settings["nstop"]
-kstop = settings["kstop"]
-dt = settings["dt"]
+# Read coupling settings
+nstart = settings["nstart"]  # First time step (with time step 0 the initial condition)
+nstop = settings["nstop"]  # Final time step
+kstop = settings["kstop"]  # Maximal number of coupling iterations
+dt = settings["dt"]  # Time step size
 
-# Initialize solvers
+# Set time step and initialize solvers
 flowsolver.settimestep(dt)
 structuresolver.settimestep(dt)
 flowsolver.initialize()
@@ -50,7 +49,6 @@ structuresolver.initialize()
 
 # Initialize coupling
 x = flowsolver.getinputdata()
-r = x
 
 # Time step loop
 for n in range(nstart, nstop):
@@ -63,12 +61,12 @@ for n in range(nstart, nstop):
         if k == 0:
             x = extrapolator.predict()
         else:
-            dx = coupler.predict(-r) + r
+            dx = coupler.predict(r)
             x += dx
         y = flowsolver.calculate(x)
         xt = structuresolver.calculate(y)
         r = xt - x
-        coupler.add(r, xt)
+        coupler.add(x, xt)
 
         convergence.add(r)
         if convergence.issatisfied():
