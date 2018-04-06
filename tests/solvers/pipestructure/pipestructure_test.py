@@ -1,4 +1,4 @@
-from solvers.pipestructure.pipestructure import PipeStructure
+from solvers.pipestructure.v1 import PipeStructure
 import numpy as np
 import math as m
 

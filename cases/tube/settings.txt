@@ -1,7 +1,7 @@
 {
-    "flowsolvermodule": "solvers.pipeflow.pipeflow",
+    "flowsolvermodule": "solvers.pipeflow.v1",
     "flowsolverclass": "PipeFlow",
-    "structuresolvermodule": "solvers.pipestructure.pipestructure",
+    "structuresolvermodule": "solvers.pipestructure.v1",
     "structuresolverclass": "PipeStructure",
     "couplermodule": "couplers.iqnils",
     "couplerclass": "IQNILS",

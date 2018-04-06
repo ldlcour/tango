@@ -1,4 +1,4 @@
-from solvers.pipeflow.pipeflow import PipeFlow
+from solvers.pipeflow.v1 import PipeFlow
 import numpy as np
 import math as m
 
