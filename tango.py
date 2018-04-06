@@ -60,8 +60,8 @@ for n in range(nstart, nstop):
         component.initializestep()
 
     # Coupling iteration loop
-    for k in range(0, kstop):
-        if k == 0:
+    for k in range(1, kstop):
+        if k == 1:
             x = extrapolator.predict()
         else:
             dx = coupler.predict(r)
