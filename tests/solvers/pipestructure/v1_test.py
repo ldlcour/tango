@@ -14,7 +14,7 @@ def test_getsetgrid():
         "m": 100
     }  # Test case
 
-    pipestructure = PipeStructure(parameters)
+    pipestructure = PipeStructure(parameters, "data/")
     xi = pipestructure.getinputgrid()
     assert len(xi) == parameters["m"]
     xo = pipestructure.getoutputgrid()
@@ -41,7 +41,7 @@ def test_constantarea():
     p = np.zeros(parameters["m"])  # Zero load
     a0 = np.ones(parameters["m"]) * m.pi * parameters["d"] ** 2 / 4.0  # Undisturbed area of cross section
 
-    pipestructure = PipeStructure(parameters)
+    pipestructure = PipeStructure(parameters, "data/")
     pipestructure.settimestep(dt)
     pipestructure.initialize()
     for i in range(1, n):
@@ -71,7 +71,7 @@ def test_repeatarea():
     p = np.ones(parameters["m"]) * 0.1 * cmk2
     q = p * 1.1
 
-    pipestructure = PipeStructure(parameters)
+    pipestructure = PipeStructure(parameters, "data/")
     pipestructure.settimestep(dt)
     pipestructure.initialize()
     for i in range(1, n):

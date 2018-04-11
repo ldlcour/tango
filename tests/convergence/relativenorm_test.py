@@ -15,7 +15,7 @@ def test_convergence():
     r2 = 1e-1 * np.ones(m)
     r3 = 1e-4 * np.ones(m)
 
-    convergence = RelativeNorm(parameters)
+    convergence = RelativeNorm(parameters, "data/")
     convergence.initializestep()
     assert not convergence.issatisfied()
     convergence.add(r0)
@@ -37,7 +37,7 @@ def test_add():
     m = 10
     r0 = np.ones(m)
 
-    convergence = RelativeNorm(parameters)
+    convergence = RelativeNorm(parameters, "data/")
     convergence.initializestep()
     with pytest.raises(RuntimeError):
         convergence.finalizestep()

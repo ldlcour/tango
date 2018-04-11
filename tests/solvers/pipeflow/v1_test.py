@@ -20,7 +20,7 @@ def test_getsetgrid():
         "newtontol": 1e-12
     }  # Test case with constant inlet velocity
 
-    pipeflow = PipeFlow(parameters)
+    pipeflow = PipeFlow(parameters, "data/")
     xi = pipeflow.getinputgrid()
     assert len(xi) == parameters["m"]
     xo = pipeflow.getoutputgrid()
@@ -52,7 +52,7 @@ def test_constantpressure():
     n = 10  # Number of time steps
     a = m.pi * parameters["d"] ** 2 / 4.0 * np.ones(parameters["m"])  # Undisturbed area of cross section
 
-    pipeflow = PipeFlow(parameters)
+    pipeflow = PipeFlow(parameters, "data/")
     pipeflow.settimestep(dt)
     pipeflow.initialize()
     for i in range(1, n):
@@ -87,7 +87,7 @@ def test_repeatpressure():
     a = m.pi*parameters["d"] ** 2 / 4.0 * np.ones(parameters["m"])  # Undisturbed area of cross section
     b = 1.1 * a  # Disturbed area of cross section
 
-    pipeflow = PipeFlow(parameters)
+    pipeflow = PipeFlow(parameters, "data/")
     pipeflow.settimestep(dt)
     pipeflow.initialize()
     for i in range(1, n):
@@ -127,7 +127,7 @@ def test_linearpressure():
     n = 10  # Number of time steps
     a = m.pi * parameters["d"] ** 2 / 4.0 * np.ones(parameters["m"])  # Undisturbed area of cross section
 
-    pipeflow = PipeFlow(parameters)
+    pipeflow = PipeFlow(parameters, "data/")
     pipeflow.settimestep(dt)
     pipeflow.initialize()
     for i in range(1, n):
