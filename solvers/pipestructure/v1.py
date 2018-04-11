@@ -12,7 +12,7 @@ class PipeStructure:
             with open(os.path.join(casepath, "pipestructure/settings.txt")) as f:
                 parameters = json.load(f)
 
-        self.datapath = os.makedirs(os.path.join(datapath, "pipestructure"), exist_ok=True)
+        self.datapath = os.path.join(datapath, "pipestructure")
         os.makedirs(self.datapath, exist_ok=True)
         self.filepath = os.path.join(self.datapath, "output.dat")
         self.datafile = open(self.filepath, mode='w')
@@ -106,6 +106,8 @@ class PipeStructure:
                 Exception("No step ongoing")
         else:
             Exception("Not initialized")
+        np.savetxt(self.datafile, [self.p])
+        np.savetxt(self.datafile, [self.a])
 
     def finalize(self):
         if self.initialized:

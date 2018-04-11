@@ -16,7 +16,7 @@ class PipeFlow:
             with open(os.path.join(casepath, "pipeflow/settings.txt")) as f:
                 parameters = json.load(f)
 
-        self.datapath = os.makedirs(os.path.join(datapath, "pipeflow"), exist_ok=True)
+        self.datapath = os.path.join(datapath, "pipeflow")
         os.makedirs(self.datapath, exist_ok=True)
         self.filepath = os.path.join(self.datapath, "output.dat")
         self.datafile = open(self.filepath, mode='w')
@@ -144,6 +144,9 @@ class PipeFlow:
                 Exception("No step ongoing")
         else:
             Exception("Not initialized")
+        np.savetxt(self.datafile, [self.a])
+        np.savetxt(self.datafile, [self.p])
+        np.savetxt(self.datafile, [self.u])
 
     def finalize(self):
         if self.initialized:
