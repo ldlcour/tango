@@ -46,10 +46,11 @@ class IQNILS:
             rr = qr(self.v, mode='r')
             diag = np.diagonal(rr)
             m = min(diag)
-            if m < self.minsignificant:
+            if abs(m) < self.minsignificant:
                 i = np.argmin(diag)
                 self.v = np.delete(self.v, i, 1)
                 self.w = np.delete(self.w, i, 1)
+                print("Removing columns " + str(i) + ": " + str(abs(m)) + " < minsignificant")
             else:
                 singular = False
         # Calculate return value if sufficient data available
