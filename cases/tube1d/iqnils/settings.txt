@@ -1,0 +1,4 @@
+{
+    "minsignificant": 1e-10,
+    "omega": 0.01
+}

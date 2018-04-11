@@ -8,7 +8,7 @@ class RelativeNorm:
         if type(casepath) is dict:
             parameters = casepath
         else:
-            with open(os.path.join(casepath, "settings.txt")) as f:
+            with open(os.path.join(casepath, "relativenorm/settings.txt")) as f:
                 parameters = json.load(f)
 
         self.datapath = os.path.join(datapath, "relativenorm")

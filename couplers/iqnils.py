@@ -9,7 +9,7 @@ class IQNILS:
         if type(casepath) is dict:
             parameters = casepath
         else:
-            with open(os.path.join(casepath, "settings.txt")) as f:
+            with open(os.path.join(casepath, "iqnils/settings.txt")) as f:
                 parameters = json.load(f)
 
         self.datapath = os.makedirs(os.path.join(datapath, "iqnils"), exist_ok=True)
