@@ -17,6 +17,9 @@ class PipeFlow:
                 parameters = json.load(f)
 
         self.datapath = os.makedirs(os.path.join(datapath, "pipeflow"), exist_ok=True)
+        os.makedirs(self.datapath, exist_ok=True)
+        self.filepath = os.path.join(self.datapath, "output.dat")
+        self.datafile = open(self.filepath, mode='w')
 
         l = parameters["l"]  # Length
         self.d = parameters["d"]  # Diameter
@@ -52,6 +55,9 @@ class PipeFlow:
 
         self.initialized = False
         self.initializedstep = False
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.datafile.close()
 
     def getinputgrid(self):
         return self.z
