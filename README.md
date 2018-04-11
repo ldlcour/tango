@@ -4,6 +4,6 @@
 python -m pytest
 
 # Run a case
-python tango.py pathtocase
+python fsi.py pathtocase
 
-e.g. python tango.py cases/tube1d/
+e.g. python fsi.py cases/tube1d/
