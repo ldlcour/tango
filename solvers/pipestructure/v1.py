@@ -5,10 +5,14 @@ import json
 
 
 class PipeStructure:
-    def __init__(self, parameters):
-        if not type(parameters) is dict:
-            with open(os.path.join(parameters, "pipestructure/settings.txt")) as f:
+    def __init__(self, casepath, datapath):
+        if type(casepath) is dict:
+            parameters = casepath
+        else:
+            with open(os.path.join(casepath, "pipestructure/settings.txt")) as f:
                 parameters = json.load(f)
+
+        self.datapath = os.makedirs(os.path.join(datapath, "pipestructure"), exist_ok=True)
 
         l = parameters["l"]  # Length
         self.d = parameters["d"]  # Diameter

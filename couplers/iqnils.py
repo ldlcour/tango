@@ -5,10 +5,14 @@ import json
 
 
 class IQNILS:
-    def __init__(self, parameters):
-        if not type(parameters) is dict:
-            with open(os.path.join(parameters, "settings.txt")) as f:
+    def __init__(self, casepath, datapath):
+        if type(casepath) is dict:
+            parameters = casepath
+        else:
+            with open(os.path.join(casepath, "settings.txt")) as f:
                 parameters = json.load(f)
+
+        self.datapath = os.makedirs(os.path.join(datapath, "iqnils"), exist_ok=True)
 
         self.added = False
         self.rref = np.array([])

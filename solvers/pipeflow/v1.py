@@ -9,10 +9,14 @@ class PipeFlow:
     Al = 4  # Number of terms below diagonal in matrix
     Au = 4  # Number of terms above diagonal in matrix
 
-    def __init__(self, parameters):
-        if not type(parameters) is dict:
-            with open(os.path.join(parameters, "pipeflow/settings.txt")) as f:
+    def __init__(self, casepath, datapath):
+        if type(casepath) is dict:
+            parameters = casepath
+        else:
+            with open(os.path.join(casepath, "pipeflow/settings.txt")) as f:
                 parameters = json.load(f)
+
+        self.datapath = os.makedirs(os.path.join(datapath, "pipeflow"), exist_ok=True)
 
         l = parameters["l"]  # Length
         self.d = parameters["d"]  # Diameter
