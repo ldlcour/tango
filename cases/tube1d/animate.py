@@ -6,12 +6,12 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as ani
 
 
-with open("pipeflow/settings.txt") as f:
+with open("pipeflow0/settings.txt") as f:
     parameters = json.load(f)
 l = parameters["l"]
 m = parameters["m"]
 
-data = np.loadtxt("../../data/tube1d/pipeflow/output.dat")
+data = np.loadtxt("../../data/pipeflow0/output.dat")
 dataa = data[0::3, :]
 
 fig = plt.figure()
