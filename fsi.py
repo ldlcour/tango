@@ -56,7 +56,9 @@ structuresolver.settimestep(dt)
 flowsolver.initialize()
 structuresolver.initialize()
 
-# To do: mapping (layer around solver with same interface as solver)
+# Set mapping
+structuresolver.setinputgrid(flowsolver.getoutputgrid())
+structuresolver.setoutputgrid(flowsolver.getinputgrid())
 
 # Initialize coupling
 x = flowsolver.getinputdata()
