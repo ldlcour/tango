@@ -25,6 +25,7 @@ class MappedSolver:
         self.solver = createinstance("solver", parameters, casepath, datapath)
         self.inputmapper = createinstance("inputmapper", parameters, casepath, datapath)
         self.outputmapper = createinstance("outputmapper", parameters, casepath, datapath)
+        self.components = [self.solver, self.inputmapper, self.outputmapper]
 
         self.initialized = False
         self.initializedstep = False
@@ -59,6 +60,9 @@ class MappedSolver:
         else:
             self.initialized = True
 
+        for component in self.components:
+            component.initialize()
+
     def initializestep(self):
         if self.initialized:
             if self.initializedstep:
@@ -68,8 +72,14 @@ class MappedSolver:
         else:
             Exception("Not initialized")
 
+        for component in self.components:
+            component.initializestep()
+
     def calculate(self, a):
-        return 0
+        am = self.inputmapper.map(a)
+        bm = self.solver.calculate(am)
+        b = self.outputmapper.map(bm)
+        return b
 
     def finalizestep(self):
         if self.initialized:
@@ -80,8 +90,14 @@ class MappedSolver:
         else:
             Exception("Not initialized")
 
+        for component in self.components:
+            component.finalizestep()
+
     def finalize(self):
         if self.initialized:
             self.initialized = False
         else:
             Exception("Not initialized")
+
+        for component in self.components:
+            component.finalize()
