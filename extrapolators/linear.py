@@ -1,8 +1,13 @@
 import numpy as np
+from itertools import count
 
 
 class Linear:
+    _ids = count(0)
+
     def __init__(self, *_):
+        self.id = next(self._ids)
+
         self.n = 0
         self.xp = np.array([])
         self.x = np.array([])

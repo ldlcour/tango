@@ -3,20 +3,24 @@ import math as m
 import os
 import json
 from scipy.linalg import solve_banded
+from itertools import count
 
 
 class PipeFlow:
     Al = 4  # Number of terms below diagonal in matrix
     Au = 4  # Number of terms above diagonal in matrix
+    _ids = count(0)
 
     def __init__(self, casepath, datapath):
+        self.id = next(self._ids)
+
         if type(casepath) is dict:
             parameters = casepath
         else:
-            with open(os.path.join(casepath, "pipeflow/settings.txt")) as f:
+            with open(os.path.join(casepath, "pipeflow" + str(self.id) + "/settings.txt")) as f:
                 parameters = json.load(f)
 
-        self.datapath = os.path.join(datapath, "pipeflow")
+        self.datapath = os.path.join(datapath, "pipeflow" + str(self.id))
         os.makedirs(self.datapath, exist_ok=True)
         self.filepath = os.path.join(self.datapath, "output.dat")
         self.datafile = open(self.filepath, mode='w')

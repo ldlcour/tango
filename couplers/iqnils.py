@@ -2,17 +2,23 @@ import numpy as np
 from scipy.linalg import qr, solve_triangular
 import os
 import json
+from itertools import count
 
 
 class IQNILS:
+    _ids = count(0)
+
     def __init__(self, casepath, datapath):
+        self.id = next(self._ids)
+
         if type(casepath) is dict:
             parameters = casepath
         else:
-            with open(os.path.join(casepath, "iqnils/settings.txt")) as f:
+            with open(os.path.join(casepath, "iqnils" + str(self.id) + "/settings.txt")) as f:
                 parameters = json.load(f)
 
-        self.datapath = os.makedirs(os.path.join(datapath, "iqnils"), exist_ok=True)
+        self.datapath = os.path.join(datapath, "iqnils" + str(self.id))
+        os.makedirs(self.datapath, exist_ok=True)
 
         self.added = False
         self.rref = np.array([])
