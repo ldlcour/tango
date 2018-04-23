@@ -16,6 +16,8 @@ class Linear:
             with open(os.path.join(casepath, "linear" + str(self.id) + "/settings.txt")) as f:
                 parameters = json.load(f)
 
+        self.extrapolate = parameters["extrapolate"]
+
         self.initializedinputgrid = False
         self.initializedoutputgrid = False
         self.inputgrid = []
@@ -38,7 +40,10 @@ class Linear:
         pass
 
     def map(self, a):
-        f = interp1d(self.inputgrid, a, bounds_error=False, fill_value="extrapolate")
+        if self.extrapolate:
+            f = interp1d(self.inputgrid, a, bounds_error=False, fill_value="extrapolate")
+        else:
+            f = interp1d(self.inputgrid, a)
         return f(self.outputgrid)
 
     def finalizestep(self):
