@@ -28,7 +28,7 @@ class IQNILS:
         self.minsignificant = parameters["minsignificant"]
         self.omega = parameters["omega"]
 
-    def add(self, x, xt):
+    def update(self, x, xt):
         r = xt - x
         if self.added:
             dr = r - self.rref

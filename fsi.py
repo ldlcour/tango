@@ -79,7 +79,7 @@ for n in range(nstart, nstop):
         y = flowsolver.calculate(x)
         xt = structuresolver.calculate(y)
         r = xt - x
-        coupler.add(x, xt)
+        coupler.update(x, xt)
 
         convergence.add(r)
         print(convergence.status())
@@ -87,7 +87,7 @@ for n in range(nstart, nstop):
             break
 
     # Finalize step for all components
-    extrapolator.add(x)
+    extrapolator.update(x)
     for component in components:
         component.finalizestep()
 

@@ -22,7 +22,7 @@ def test_initial():
     d = abs(xpp - x0)
     assert max(d) < tol
 
-    extrapolator.add(x1)
+    extrapolator.update(x1)
     xppp = extrapolator.predict()
     d = abs(xppp - x0)
     assert max(d) < tol
@@ -41,7 +41,7 @@ def test_linear():
     extrapolator = Linear()
     extrapolator.initialize(x0)
     extrapolator.initializestep()
-    extrapolator.add(x1)
+    extrapolator.update(x1)
     extrapolator.finalizestep()
     extrapolator.initializestep()
 
@@ -49,7 +49,7 @@ def test_linear():
     d = abs(xp - x2)
     assert max(d) < tol
 
-    extrapolator.add(x2)
+    extrapolator.update(x2)
     xpp = extrapolator.predict()
     d = abs(xpp - x2)
     assert max(d) < tol
@@ -58,7 +58,7 @@ def test_linear():
 
 
 # Test whether adding information is enforced
-def test_add():
+def test_update():
     m = 10
     x0 = np.ones(m)
 

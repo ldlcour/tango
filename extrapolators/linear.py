@@ -19,7 +19,7 @@ class Linear:
         self.x = np.array(x)
         self.xn = np.zeros_like(x)
 
-    def add(self, x):
+    def update(self, x):
         self.xp = np.array(x)
         self.added = True
 
