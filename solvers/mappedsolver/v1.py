@@ -29,22 +29,18 @@ class MappedSolver:
 
         self.initialized = False
         self.initializedstep = False
-        self.initializedinputgrid = False
-        self.initializedoutputgrid = False
 
     def getinputgrid(self):
         return self.inputmapper.getinputgrid()
 
     def setinputgrid(self, z):
         self.inputmapper.setinputgrid(z)
-        self.initializedinputgrid = True
 
     def getoutputgrid(self):
         return self.outputmapper.setoutputgrid()
 
     def setoutputgrid(self, z):
         self.outputmapper.setoutputgrid(z)
-        self.initializedoutputgrid = True
 
     def getinputdata(self):
         return 0
@@ -64,11 +60,8 @@ class MappedSolver:
         else:
             self.initialized = True
 
-        if self.initializedinputgrid and self.initializedoutputgrid:
-            self.inputmapper.setoutputgrid(self.solver.getinputgrid())
-            self.outputmapper.setinputgrid(self.solver.getoutputgrid())
-        else:
-            Exception("Input or output grid not set")
+        self.inputmapper.setoutputgrid(self.solver.getinputgrid())
+        self.outputmapper.setinputgrid(self.solver.getoutputgrid())
 
         for component in self.components:
             component.initialize()

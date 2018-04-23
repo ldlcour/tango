@@ -1,6 +1,7 @@
 import os
 import json
 from itertools import count
+from scipy.interpolate import interp1d
 
 
 class Linear:
@@ -15,7 +16,33 @@ class Linear:
             with open(os.path.join(casepath, "linear" + str(self.id) + "/settings.txt")) as f:
                 parameters = json.load(f)
 
-        self.datapath = os.path.join(datapath, "pipeflow" + str(self.id))
-        os.makedirs(self.datapath, exist_ok=True)
-        self.filepath = os.path.join(self.datapath, "output.dat")
-        self.datafile = open(self.filepath, mode='w')
+        self.initializedinputgrid = False
+        self.initializedoutputgrid = False
+        self.inputgrid = []
+        self.outputgrid = []
+        self.f = []
+
+    def setinputgrid(self, z):
+        self.initializedinputgrid = True
+        self.inputgrid = z
+
+    def setoutputgrid(self, z):
+        self.initializedoutputgrid = True
+        self.outputgrid = z
+
+    def initialize(self):
+        if not self.initializedinputgrid or not self.initializedoutputgrid:
+            Exception("Input or output grid not set")
+
+    def initializestep(self):
+        pass
+
+    def map(self, a):
+        f = interp1d(self.inputgrid, a, bounds_error=False, fill_value="extrapolate")
+        return f(self.outputgrid)
+
+    def finalizestep(self):
+        pass
+
+    def finalize(self):
+        pass
