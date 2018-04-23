@@ -29,6 +29,7 @@ if os.path.exists(datapath):
         shutil.rmtree(datapath, ignore_errors=True)
 os.makedirs(datapath, exist_ok=True)
 
+
 # Function to create instance from module and class name
 def createinstance(name):
     objectmodule = importlib.import_module(settings[name + "module"])
