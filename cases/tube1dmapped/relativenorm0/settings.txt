@@ -1,0 +1,5 @@
+{
+    "kmin": 2,
+    "mintol": 1e-14,
+    "reltol": 1e-3
+}

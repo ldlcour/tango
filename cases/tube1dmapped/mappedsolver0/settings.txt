@@ -1,0 +1,8 @@
+{
+    "solvermodule": "solvers.pipestructure.v1",
+    "solverclass": "PipeStructure",
+	"inputmappermodule": "mappers.linear", 
+	"inputmapperclass": "Linear",
+	"outputmappermodule": "mappers.linear",
+	"outputmapperclass": "Linear"
+}
