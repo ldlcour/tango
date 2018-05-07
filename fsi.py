@@ -4,6 +4,8 @@ import json
 import shutil
 import importlib
 import numpy as np
+import inspect
+
 
 # Obtain short case path as first input argument or user input
 if len(sys.argv) > 1:
@@ -33,7 +35,9 @@ os.makedirs(datapath, exist_ok=True)
 # Function to create instance from module and class name
 def createinstance(name):
     objectmodule = importlib.import_module(settings[name + "module"])
-    objectclass = getattr(objectmodule, settings[name + "class"])
+    is_class_member = lambda member: inspect.isclass(member) and member.__module__ == objectmodule.__name__
+    objectclass_tuple = inspect.getmembers(objectmodule, is_class_member)
+    objectclass = getattr(objectmodule, objectclass_tuple[0][0])
     return objectclass(casepath, datapath)
 
 # Create instances
